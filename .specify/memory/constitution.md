@@ -1,50 +1,131 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+==================
+Version change: 1.1.1 → 1.1.2 (PATCH: simplify testing strategy to follow common best practices)
+Modified principles:
+  - VI. Testing & Validation: Simplified to standard testing strategy with integration tests prioritized, unit tests for logic, and a few unit tests for audio algorithms
+Added sections: N/A
+Removed sections: N/A
+Modified sections: N/A
+Templates requiring updates:
+  ✅ plan-template.md (Constitution Check section will reference these principles)
+  ✅ spec-template.md (aligned with constitution principles)
+  ✅ tasks-template.md (task organization aligns with constitution)
+Follow-up TODOs: None
+-->
+
+# Melanie Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Real-time Audio Processing & Performance
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Audio analysis MUST operate in real-time with minimal latency. Web Audio API
+processing MUST maintain sub-100ms latency for note detection. Audio analysis
+algorithms MUST be optimized for browser performance constraints. All audio
+processing MUST use Web Workers or similar non-blocking mechanisms to prevent
+UI freezes. Performance degradation MUST be detectable and logged for analysis.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rationale**: Real-time music listening requires immediate feedback. High
+latency breaks the user experience of following along with live music.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Sheet Music Standardization
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Sheet music representation MUST use a standardized, parseable format (e.g.,
+MusicXML, MEI, or custom JSON schema). The chosen format MUST support both
+import and export capabilities. Sheet music data MUST be versioned and
+validated against a schema. Multiple format support SHOULD be implemented
+through a unified internal representation.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Consistent sheet music format enables reliable position tracking
+and prevents format-related bugs. Standard formats ensure interoperability with
+existing music notation software.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Position Tracking & Synchronization
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+The system MUST accurately identify the current position in the sheet music
+based on analyzed audio notes. Position tracking MUST account for tempo
+variations, pauses, and repeat sections. Synchronization between audio playback
+and sheet music position MUST be maintained within acceptable tolerance (target:
+within 1 beat/measure). Position tracking algorithms MUST handle polyphonic
+music and overlapping notes correctly.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Rationale**: Accurate position identification is the core feature of the
+application. Poor synchronization makes the application unusable for its
+primary purpose.
+
+### IV. Separation of Concerns (Angular & Spring)
+
+Frontend (Angular) MUST handle all UI interactions, audio capture, and visual
+rendering. Backend (Spring) MUST handle sheet music processing, position
+calculation algorithms, and data persistence. Audio analysis MAY be performed
+client-side (Web Audio API) or server-side based on performance requirements.
+Business logic for position tracking MUST be clearly separated from presentation
+logic. API boundaries MUST be well-defined with REST contracts.
+
+**Rationale**: Clear separation enables independent development, testing, and
+scaling of frontend and backend components. It also facilitates future platform
+support (e.g., mobile apps using the same backend).
+
+### V. API-First Design
+
+All backend functionality MUST be exposed through well-defined REST API
+endpoints. API contracts MUST be documented using OpenAPI/Swagger. Frontend
+MUST NOT directly access backend services beyond the defined API. API versioning
+MUST be supported for backward compatibility. All API responses MUST include
+appropriate error codes and messages.
+
+**Rationale**: API-first design ensures frontend and backend can evolve
+independently. Clear contracts prevent integration issues and enable
+testing of components in isolation.
+
+### VI. Testing & Validation
+
+Testing MUST follow common best practices: prioritize integration tests for
+component interactions and service collaborations; use unit tests for pure logic
+and business rules. Audio analysis algorithms MUST have a few unit tests with
+synthetic audio inputs. End-to-end tests MUST verify critical user workflows.
+
+**Rationale**: Integration tests verify how components work together. Unit tests
+validate isolated logic. A few unit tests for audio algorithms ensure core
+functionality correctness.
+
+## Performance Standards
+
+Real-time audio processing MUST maintain sub-100ms latency from audio input to
+position update. Sheet music rendering MUST achieve 60 FPS for smooth scrolling
+and highlighting. API response times MUST be under 200ms for position
+calculation requests. The application MUST handle audio streams up to 96kHz
+sample rate without degradation. Memory usage MUST remain stable during
+extended playback sessions (target: no memory leaks over 30+ minute sessions).
+
+## Development Workflow
+
+Angular development MUST follow the instructions and best practices provided by
+the Angular MCP (Model Context Protocol). All Angular-specific guidelines,
+syntax requirements, and architectural patterns MUST be derived from the Angular
+MCP documentation. Angular state management MUST use NgRx SignalStore. Spring
+services MUST follow dependency injection patterns and be testable in
+integration. All API endpoints MUST include comprehensive error handling and
+logging. Code reviews MUST verify constitution compliance before merge.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices and conventions.
+Amendments to principles require:
+1. Documentation of the change rationale
+2. Impact analysis on existing code and templates
+3. Update of dependent templates and documentation
+4. Version increment following semantic versioning
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Versioning Policy**: 
+- MAJOR: Backward incompatible principle changes or removals
+- MINOR: New principles or materially expanded guidance
+- PATCH: Clarifications, wording improvements, non-semantic refinements
+
+**Compliance Review**: All feature specifications, implementation plans, and
+task lists MUST be checked against constitution principles. The `/speckit.analyze`
+command enforces constitution compliance. Violations MUST be resolved before
+implementation begins.
+
+**Version**: 1.1.2 | **Ratified**: 2025-12-21 | **Last Amended**: 2025-12-21
