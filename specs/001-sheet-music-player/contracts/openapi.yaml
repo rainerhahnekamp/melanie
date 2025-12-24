@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: Melanie Sheet Music Player API
+  description: |
+    REST API for Melanie sheet music player application. 
+    
+    This API provides optional backend services for file management and future features.
+    Core functionality (audio analysis, position tracking, sheet music rendering) happens
+    client-side for offline support. The backend primarily serves file upload/management
+    and metadata storage.
+  version: 1.0.0
+  contact:
+    name: Melanie Development Team
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+  - url: https://api.melanie.example.com/api/v1
+    description: Production server
+
+tags:
+  - name: Sheet Music
+    description: Sheet music file management
+  - name: Health
+    description: Health check endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns API health status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /sheet-music:
+    get:
+      tags:
+        - Sheet Music
+      summary: List sheet music files
+      description: Retrieve list of sheet music files with metadata
+      operationId: listSheetMusic
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of results to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of sheet music files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SheetMusicListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Sheet Music
+      summary: Upload sheet music file
+      description: Upload a MusicXML file to the server
+      operationId: uploadSheetMusic
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: MusicXML file to upload
+                title:
+                  type: string
+                  description: Title of the composition (optional, can be extracted from file)
+                composer:
+                  type: string
+                  description: Composer name (optional, can be extracted from file)
+      responses:
+        '201':
+          description: Sheet music file uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SheetMusicResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /sheet-music/{id}:
+    get:
+      tags:
+        - Sheet Music
+      summary: Get sheet music file
+      description: Retrieve a sheet music file by ID
+      operationId: getSheetMusic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sheet music file ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sheet music file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SheetMusicResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Sheet Music
+      summary: Delete sheet music file
+      description: Delete a sheet music file by ID
+      operationId: deleteSheetMusic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sheet music file ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Sheet music file deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /sheet-music/{id}/file:
+    get:
+      tags:
+        - Sheet Music
+      summary: Download sheet music file
+      description: Download the MusicXML file content
+      operationId: downloadSheetMusicFile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sheet music file ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: MusicXML file content
+          content:
+            application/xml:
+              schema:
+                type: string
+            text/xml:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "UP"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-23T10:00:00Z"
+
+    SheetMusicResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          example: "Allegro con brio"
+        composer:
+          type: string
+          example: "Ludwig van Beethoven"
+        workTitle:
+          type: string
+          nullable: true
+          example: "Symphony No. 5"
+        catalogNumber:
+          type: string
+          nullable: true
+          example: "Op. 67"
+        iswc:
+          type: string
+          nullable: true
+          example: "T-123.456.789-1"
+        movementNumber:
+          type: integer
+          nullable: true
+          example: 1
+        movementTitle:
+          type: string
+          nullable: true
+          example: "Allegro con brio"
+        fileFormat:
+          type: string
+          enum: [MusicXML]
+          example: "MusicXML"
+        fileSize:
+          type: integer
+          example: 123456
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-12-23T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-12-23T10:00:00Z"
+
+    SheetMusicListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SheetMusicResponse'
+        total:
+          type: integer
+          example: 42
+        limit:
+          type: integer
+          example: 20
+        offset:
+          type: integer
+          example: 0
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error message"
+        code:
+          type: string
+          example: "ERROR_CODE"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-23T10:00:00Z"
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Invalid request parameters"
+            code: "BAD_REQUEST"
+            timestamp: "2025-12-23T10:00:00Z"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Sheet music file not found"
+            code: "NOT_FOUND"
+            timestamp: "2025-12-23T10:00:00Z"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "An internal error occurred"
+            code: "INTERNAL_ERROR"
+            timestamp: "2025-12-23T10:00:00Z"
+

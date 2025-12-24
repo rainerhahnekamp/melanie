@@ -3,7 +3,8 @@
 **Application Name**: Melanie  
 **Feature Branch**: `001-sheet-music-player`  
 **Created**: 2025-01-27  
-**Status**: Draft  
+**Status**: Master Plan/Epic  
+**Note**: This is a master plan representing the complete vision. Implementation will be broken down into smaller features, starting with `002-audio-analyzer` (audio analyzer with unit tests).  
 **Input**: User description: "My goal is to write an web based application, which can also be used on mobile and offline mode. The application's goal is show sheets (music) to the artist while he is playing. The app should listen to the artist and be able to identify at which position he is at any time. The location inside the sheet should the be used to support automatic swtich to a new page. The artist should be able to set the time when the page turn should happen. That could be 2 \"Takte\" before the end of the page or also just 4 seconds before the end."
 
 ## User Scenarios & Testing *(mandatory)*
