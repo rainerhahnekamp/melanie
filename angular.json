@@ -99,7 +99,7 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "browsers": ["chrome"]
+            "browsers": ["chromium"]
           }
         }
       }

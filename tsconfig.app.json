@@ -9,9 +9,9 @@
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/frontend/**/*.ts"
   ],
   "exclude": [
-    "src/**/*.spec.ts"
+    "src/frontend/**/*.spec.ts"
   ]
 }
