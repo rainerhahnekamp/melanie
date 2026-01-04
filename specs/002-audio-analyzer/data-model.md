@@ -187,3 +187,4 @@ DetectedNote (1) ──< (1) Pitch
 - Types are designed for TypeScript with strict type checking
 - Interfaces align with master plan data model (`001-sheet-music-player/data-model.md`) for future integration
 
+

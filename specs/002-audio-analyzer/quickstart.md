@@ -186,3 +186,4 @@ expect(result.detectedNotes[0].pitch.octave).toBe(4);
 - [Vitest Documentation](https://vitest.dev)
 - Master Plan: `001-sheet-music-player` for complete architecture
 
+
